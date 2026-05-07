@@ -1,0 +1,19 @@
+services:
+  pgvector:
+    image: pgvector/pgvector:0.8.2-pg18-trixie
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${pg_db}
+      POSTGRES_USER: ${pg_user}
+      POSTGRES_PASSWORD: ${pg_password}
+    volumes:
+      - pgvector_data:/var/lib/postgresql
+    networks:
+      - backend
+
+networks:
+  backend:
+
+volumes:
+  pgvector_data:

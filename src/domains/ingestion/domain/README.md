@@ -1,0 +1,1 @@
+An IngestionJob represents the current state of ingesting one document. Retries mutate the same job (incrementing attempts, clearing failure). Past attempts are not preserved on the entity — for audit history, see IngestionFailed events. If audit needs grow, consider switching to per-attempt jobs.

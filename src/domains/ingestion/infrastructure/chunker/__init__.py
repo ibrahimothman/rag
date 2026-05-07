@@ -1,0 +1,1 @@
+from .fixed_size import FixedSizeChunker, FixedSizeChunkerConfig

@@ -1,0 +1,1 @@
+from .pgvector_index import PgVectorChunkIndex, PgVectorChunkIndexConfig

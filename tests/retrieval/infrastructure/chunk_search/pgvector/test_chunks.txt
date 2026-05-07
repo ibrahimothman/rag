@@ -1,0 +1,7 @@
+PACELC is an extension of the CAP theorem created to address its limitations. It stands for: if there is a Partition (P), the system must choose between Availability (A) and Consistency (C); Else (E), when the system is running normally, it must choose between Latency (L) and Consistency (C).
+---
+The first part of PACELC, 'PAC', mirrors the original CAP theorem. It dictates how a distributed database behaves during a network partition. In this scenario, a system must prioritize either being highly available (AP) or maintaining strict data consistency (CP) at the cost of erroring out.
+---
+The 'ELC' part of PACELC describes the trade-offs during normal operation. Even when the network is healthy, a system must choose between Latency (L) and Consistency (C). To ensure consistency across nodes, the system must wait for data to sync, which increases the time it takes to respond to a user.
+---
+Different databases prioritize different sides of PACELC. For example, Amazon's DynamoDB is often configured as an PA/EL system, prioritizing availability and low latency. In contrast, ACID-compliant relational databases like PostgreSQL are typically PC/EC systems, favoring consistency in both failure and normal states.
