@@ -35,6 +35,7 @@ from src.domains.generation.api import (
 )
 
 from src.domains.generation.orchestration.event_publisher import EventPublisher
+from src.domains.generation.domain import GenerationResult
 
 
 
@@ -53,7 +54,7 @@ class GenerationPipeline:
         request_id: UUID, 
         question: str, 
         grounding: tuple[GroundingChunk, ...]
-    ) -> None:
+    ) -> GenerationResult | None:
         
         started_at = time.monotonic()
         generation_id = uuid4()
@@ -83,8 +84,7 @@ class GenerationPipeline:
                 duration_ms=int((time.monotonic() - started_at) * 1000)
             ))
 
-            return
-            
+            return None
 
         citation_map = resolve_citations(full_answer, grounding)
 
@@ -104,7 +104,15 @@ class GenerationPipeline:
             duration_ms=int((time.monotonic() - started_at) * 1000)
         ))
 
-        return
+        return GenerationResult(
+            request_id=request_id,
+            question=question,
+            generation_id=generation_id,
+            full_answer=full_answer,
+            citations=citation_map.entries,
+            grounding_quality=grounding_quality.value,
+            unresolved_markers=citation_map.unresolved_markers,
+        )
     
 
 

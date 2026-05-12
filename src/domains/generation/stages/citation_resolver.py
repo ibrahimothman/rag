@@ -5,7 +5,7 @@ from src.domains.generation.domain import GroundingChunk, CitationMap, CitationE
 import re
 
 
-_CHUNK_MARKER_PATTERN = re.compile(r"\[chunk-(\d+)\]")
+_CHUNK_MARKER_PATTERN = re.compile(r"chunk-(\d+)")
 
 
 def resolve_citations(

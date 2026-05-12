@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from uuid import UUID
 
 from src.domains.generation.domain.grounding import Citation
     
@@ -47,4 +48,17 @@ class CitationMap:
         A signal of potential hallucination.
         """
         return len(self.unresolved_markers) > 0
-    
+
+@dataclass(frozen=True)
+class GenerationResult:
+    """
+    The complete result of a generation operation.
+    """
+    request_id: UUID
+    question: str
+    generation_id: UUID
+    full_answer: str
+    citations: tuple[CitationEntry, ...]
+    grounding_quality: str
+    unresolved_markers: tuple[str, ...]
+
