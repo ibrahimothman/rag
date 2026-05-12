@@ -7,7 +7,7 @@ from ..domain.exceptions import JobNotRetryable
 from ..domain.stages import IngestionStage
 import time
 
-class IngestionCommandHandler:
+class IngestionHandler:
 
     
     def __init__(self, pipeline: Pipeline, jobs: JobRepository):

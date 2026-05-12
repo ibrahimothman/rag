@@ -1,4 +1,4 @@
-from .handler import IngestionCommandHandler
+from .handler import IngestionHandler
 from ..api.commands import IngestDocument
 from ..domain.exceptions import JobNotRetryable
 from .job_repository import JobRepository
@@ -8,8 +8,8 @@ import logging
 
 logger = logging.getLogger("ingestion.retry")
 
-class RetryingIngestionCommandHandler:
-    def __init__(self, inner: IngestionCommandHandler, jobs: JobRepository):
+class RetryingIngestionHandler:
+    def __init__(self, inner: IngestionHandler, jobs: JobRepository):
         self._inner = inner
         self._jobs = jobs
 
