@@ -1,6 +1,9 @@
 # Byte-compiled / optimized / DLL files
+# Python cache files
 __pycache__/
-*.py[codz]
+*.pyc
+*.pyo
+*.pyd
 *$py.class
 
 # C extensions
@@ -221,3 +224,5 @@ pyproject.toml
 src/*
 !src/domains/
 !src/domains/**
+!src/shared/
+!src/shared/**

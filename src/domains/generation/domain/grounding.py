@@ -13,7 +13,7 @@ class Citation:
     """
     
     document_id: UUID
-    page_number: int | None = None
+    page: int | None = None
 
 @dataclass(frozen=True)
 class GroundingChunk:

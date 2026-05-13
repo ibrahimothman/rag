@@ -1,10 +1,9 @@
-from ipaddress import v6_int_to_packed
-from multiprocessing import AuthenticationError
+
 from src.domains.ingestion.stages.embedder import Embedder, EmbeddingFailed
 from src.domains.ingestion.domain.chunk import Chunk, EmbeddedChunk
+from src.shared.gemini import GeminiProviderClient, GeminiError
+
 from dataclasses import dataclass
-from google import genai
-from google.genai import types, errors
 
 from google.genai import types
 
@@ -19,7 +18,6 @@ from google.genai import types
 class GeminiEmbedderConfig:
     embedding_size: int
     model: str
-    api_key: str
     batch_size: int = 100
 
 class GeminiEmbedder(Embedder):
@@ -32,9 +30,9 @@ class GeminiEmbedder(Embedder):
     auth errors and malformed requests are permanent.
     """
     
-    def __init__(self, config: GeminiEmbedderConfig):
-        self._config = config or GeminiEmbedderConfig()
-        self._client = genai.Client(api_key=self._config.api_key)
+    def __init__(self, config: GeminiEmbedderConfig, gemini: GeminiProviderClient):
+        self._config = config
+        self._gemini = gemini
 
     @property
     def model_version(self) -> str:
@@ -70,41 +68,34 @@ class GeminiEmbedder(Embedder):
             for chunk in batch
         ]
         try:    
-            results = self._client.models.embed_content(
+            results = self._gemini.client.models.embed_content(
                 model=self._config.model,
                 contents=contents,
                 config={
                     "output_dimensionality": self._config.embedding_size
                 }
             )
-
-            actual_dimensionality = len(results.embeddings[0].values)
-            if actual_dimensionality != self._config.embedding_size:
-                raise EmbeddingFailed(
-                    F"API returned unexpected dimensionality {actual_dimensionality} for model {self._config.model}, expected {self._config.embedding_size}",
-                    permanent=True
-                )
-            # TODO: check if the embeddings are empty
-            return [embedding.values for embedding in results.embeddings]
-
-        except errors.ClientError as e:
-            # ClientError: If the status code is in the 4xx range.
-            # 429 (rate limit and quota exceeded)
-            if e.code == 429:
-                raise EmbeddingFailed(f"Rate limited: {e}", permanent=False)
-            raise EmbeddingFailed(f"Client error: {e}", permanent=True)
-
-        except errors.ServerError as e:
-            # ServerError: If the status code is in the 5xx range.
-            # 503 (DEADLINE_EXCEEDED), could be due to the prompt is too long or the server is overloaded,
-            # better to retry, any way the policy retry governs by limiting the number of retries
-            if e.code == 503:
-                raise EmbeddingFailed(f"Service unavailable: {e}", permanent=False)
-            raise EmbeddingFailed(f"Server error: {e}", permanent=True)
-
-        except errors.APIError as e:
-            # for other errors
-            raise EmbeddingFailed(f"API error: {e}", permanent=True)    
+        except GeminiError as e:
+            gemini_error = self._gemini.translate_error(e)
+            raise EmbeddingFailed(
+                message=gemini_error.message,
+                permanent=gemini_error.permanent
+            )
+        
+        if not results or not results.embeddings or not results.embeddings[0] or not results.embeddings[0].values:
+            raise EmbeddingFailed(
+                "API returned empty embeddings",
+                permanent=True
+            )
+        
+        actual_dimensionality = len(results.embeddings[0].values)
+        if actual_dimensionality != self._config.embedding_size:
+            raise EmbeddingFailed(
+                F"API returned unexpected dimensionality {actual_dimensionality} for model {self._config.model}, expected {self._config.embedding_size}",
+                permanent=True
+            )
+        # TODO: check if the embeddings are empty
+        return [embedding.values for embedding in results.embeddings]
 
     def _apply_task(self, text: str) -> str:
         return f"title: none | text: {text}"

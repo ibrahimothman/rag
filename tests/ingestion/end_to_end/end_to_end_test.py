@@ -34,7 +34,7 @@ def main(file_path: str, mime_type: str):
 
 if __name__ == "__main__":
     uploads_dir = Path("assets/files")
-    file = uploads_dir / "pacelc.txt"
+    file = uploads_dir / "ddd.pdf"
     mime_type = "application/pdf" if file.suffix.lower() == ".pdf" else "text/plain"
     main(str(file), mime_type)
    

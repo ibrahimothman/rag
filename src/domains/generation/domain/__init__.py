@@ -1,5 +1,5 @@
 from .prompt import Prompt, SystemInstructions
-from .answer import CitationEntry, CitationMap
+from .answer import CitationEntry, CitationMap, GenerationResult
 from .grounding import GroundingChunk, Citation
 from .failure import GenerationFailureReason, GenerationFailureKind
 from .quality import GroundingQuality
@@ -14,4 +14,5 @@ __all__ = [
     "GenerationFailureReason",
     "GenerationFailureKind",
     "GroundingQuality",
+    "GenerationResult",
 ]
